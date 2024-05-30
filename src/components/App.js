@@ -6,7 +6,25 @@ import PetBrowser from "./PetBrowser";
 function App() {
   const [pets, setPets] = useState([]);
   const [filters, setFilters] = useState({ type: "all" });
-
+  const PET_URL =
+    filters.type === "all"
+      ? "http://localhost:3001/pets"
+      : `http://localhost:3001/pets?type=${filters.type}`;
+  function handleFindPets() {
+    fetch(PET_URL)
+      .then((r) => r.json())
+      .then((data) => setPets(data));
+  }
+  function handleSetFilter(p) {
+    setFilters({ type: p });
+  }
+  // console.log(pets);
+  function handleAdopted(id) {
+    const adoptedPet = pets.map((pet) => {
+      return pet.id === id ? { ...pet, isAdopted: true } : pet;
+    });
+    setPets(adoptedPet);
+  }
   return (
     <div className="ui container">
       <header>
@@ -15,10 +33,13 @@ function App() {
       <div className="ui container">
         <div className="ui grid">
           <div className="four wide column">
-            <Filters />
+            <Filters
+              onFindPetsClick={handleFindPets}
+              onChangeType={handleSetFilter}
+            />
           </div>
           <div className="twelve wide column">
-            <PetBrowser />
+            <PetBrowser pets={pets} onAdoptPet={handleAdopted} />
           </div>
         </div>
       </div>
